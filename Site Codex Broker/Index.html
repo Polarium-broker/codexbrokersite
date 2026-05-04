@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codex Broker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #050505;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    button { font-family: inherit; border: none; background: none; cursor: pointer; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #050505; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #444; }
+    ::selection { background: rgba(70,255,118,0.2); color: white; }
+
+    /* ===== CONTAINER ===== */
+    .container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    @media (min-width: 640px) { .container { padding: 0 1.5rem; } }
+    @media (min-width: 1024px) { .container { padding: 0 2rem; max-width: 1280px; } }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-33.33%); }
+    }
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* ===== UTILITY CLASSES ===== */
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 9999px;
+      background: #46FF76;
+      color: #050505;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(70,255,118,0.4);
+      transform: scale(1.02);
+    }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+    .btn-ghost:hover { color: #fff; }
+    .dark-card {
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(8,8,8,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .dark-card:hover { border-color: rgba(255,255,255,0.12); }
+
+    /* ===== HEADER ===== */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      transition: all 0.3s;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+    .site-header.scrolled {
+      background: rgba(5,5,5,0.92) !important;
+      border-bottom-color: rgba(255,255,255,0.06);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
+    .header-logo img { height: 28px; width: auto; filter: brightness(1.05); }
+    @media (min-width: 768px) { .header-logo img { height: 32px; } }
+    .desktop-nav {
+      display: none;
+      align-items: center;
+      gap: 40px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    @media (min-width: 1024px) { .desktop-nav { display: flex; } }
+    .desktop-nav a {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .desktop-nav a:hover { color: #fff; }
+    .desktop-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: #46FF76;
+      transition: width 0.3s;
+    }
+    .desktop-nav a:hover::after { width: 100%; }
+    .desktop-cta {
+      display: none;
+      align-items: center;
+      gap: 20px;
+    }
+    @media (min-width: 1024px) { .desktop-cta { display: flex; } }
+    .desktop-cta .login-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      transition: color 0.2s;
+    }
+    .desktop-cta .login-link:hover { color: #fff; }
+    .desktop-cta .cta-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      background: #46FF76;
+      color: #050505;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .desktop-cta .cta-btn:hover { box-shadow: 0 0 25px rgba(70,255,118,0.35); transform: scale(1.02); }
+    .mobile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.6);
+      transition: all 0.2s;
+    }
+    .mobile-toggle:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    @media (min-width: 1024px) { .mobile-toggle { display: none; } }
+    .mobile-menu {
+      display: none;
+      overflow: hidden;
+      background: rgba(5,5,5,0.97);
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    @media (min-width: 1024px) { .mobile-menu { display: none !important; } }
+    .mobile-menu.open { display: block; }
+    .mobile-menu nav { display: flex; flex-direction: column; gap: 4px; }
+    .mobile-menu nav a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      padding: 12px;
+      border-radius: 8px;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .mobile-menu nav a:hover { color: #fff; background: rgba(255,255,255,0.03); }
+    .mobile-menu-cta {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: repeating-conic-gradient(at 1px 1px, rgba(255,255,255,0.04) 0deg, rgba(255,255,255,0.04) 90deg, transparent 90deg, transparent 180deg);
+      background-size: 60px 60px;
+    }
+    .hero-glow {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 500px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-glow-radial {
+      width: 100%; height: 100%;
+      background: radial-gradient(ellipse 40% 70% at 50% 0%, rgba(70,255,118,0.25) 0%, rgba(70,255,118,0.08) 30%, transparent 70%);
+    }
+    .hero-glow-line {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 2px; height: 300px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(70,255,118,0.4), transparent);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      padding: 0 16px;
+      max-width: 768px;
+      margin: 80px auto 0;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      border: 1px solid rgba(180,160,100,0.3);
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      margin-bottom: 32px;
+    }
+    .hero-badge-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #46FF76;
+      animation: pulse 2s infinite;
+    }
+    .hero-badge span { font-size: 14px; color: rgba(255,255,255,0.7); }
+    .hero-badge .badge-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .hero h1 .dim { color: rgba(255,255,255,0.5); }
+    .hero .subtitle {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: rgba(255,255,255,0.4);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+    .hero-ctas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    @media (min-width: 640px) { .hero-ctas { flex-direction: row; justify-content: center; } }
+    .hero-scroll {
+      position: absolute;
+      bottom: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    .hero-scroll-line {
+      width: 2px; height: 32px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+      border-radius: 9999px;
+    }
+    .hero-bottom-text {
+      position: absolute;
+      bottom: 32px;
+      left: 0; right: 0;
+      text-align: center;
+      z-index: 10;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.05em;
+    }
+    .floating-icon {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+    }
+    @media (max-width: 767px) { .floating-icon { display: none; } }
+
+    /* ===== LOGO TICKER ===== */
+    .ticker-section {
+      padding: 20px 0;
+      background: #050505;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .ticker-track {
+      display: flex;
+      animation: ticker 25s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-item {
+      flex-shrink: 0;
+      padding: 0 28px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== PRESENCE ===== */
+    .presence {
+      position: relative;
+      padding: 48px 0;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+    @media (min-width: 768px) { .presence { padding: 128px 0; } }
+    .presence-overlay {
+      position: absolute; inset: 0;
+      background: rgba(10,10,10,0.9);
+      z-index: 1;
+    }
+    .presence canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .presence .container { position: relative; z-index: 10; }
+    .presence-grid {
+      display: grid;
+      gap: 24px;
+      align-items: end;
+    }
+    @media (min-width: 768px) { .presence-grid { gap: 64px; } }
+    @media (min-width: 1024px) { .presence-grid { grid-template-columns: 1fr 1fr; } }
+    .presence h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .presence h2 .dim { color: rgba(255,255,255,0.5); }
+    .presence-right { text-align: left; }
+    @media (min-width: 1024px) { .presence-right { text-align: right; } }
+    .presence-right p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    @media (min-width: 768px) { .presence-right p { font-size: 15px; } }
+    .presence-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    @media (min-width: 768px) { .presence-badges { gap: 16px; margin-top: 56px; } }
+    .presence-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+    }
+    .presence-badge.green {
+      border: 1px solid rgba(70,255,118,0.2);
+      background: linear-gradient(135deg, rgba(70,255,118,0.12) 0%, rgba(70,255,118,0.03) 100%);
+    }
+    .presence-badge.rose {
+      border: 1px solid rgba(244,63,94,0.2);
+      background: linear-gradient(135deg, rgba(244,63,94,0.12) 0%, rgba(244,63,94,0.03) 100%);
+    }
+
+    /* ===== ECOSYSTEM ===== */
+    .ecosystem { padding: 48px 0; background: #050505; }
+    @media (min-width: 768px) { .ecosystem { padding: 128px 0; } }
+    .section-header { text-align: center; margin-bottom: 32px; }
+    @media (min-width: 768px) { .section-header { margin-bottom: 64px; } }
+    .section-header h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.15;
+    }
+    .section-header h2 .dim { color: rgba(255,255,255,0.5); }
+    .section-header p {
+      color: rgba(255,255,255,0.35);
+      font-size: 14px;
+      max-width: 448px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    @media (min-width: 768px) { .section-header p { font-size: 15px; } }
+    .eco-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 768px) { .eco-grid { grid-template-columns: 1fr 1fr; } }
+    .eco-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #0c0c0e;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.5s;
+    }
+    .eco-card:hover { border-color: rgba(255,255,255,0.12); }
+    .eco-card-img {
+      position: relative;
+      height: 160px;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { .eco-card-img { height: 224px; } }
+    @media (min-width: 1024px) { .eco-card-img { height: 288px; } }
+    .eco-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease-out;
+    }
+    .eco-card:hover .eco-card-img img { transform: scale(1.03); }
+    .eco-card-fade {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 96px;
+      background: linear-gradient(to top, #0c0c0e 0%, transparent 100%);
+    }
+    .eco-card-content { padding: 4px 24px 24px; }
+    .eco-card-content .divider {
+      width: 32px; height: 1.5px;
+      background: rgba(255,255,255,0.15);
+      margin-bottom: 16px;
+    }
+    .eco-card-content h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .eco-card-content p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { padding: 48px 0; background: #050505; overflow: hidden; }
+    @media (min-width: 768px) { .testimonials { padding: 128px 0; } }
+    .testimonials .section-header h2 .accent { color: #46FF76; }
+    .test-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) { .test-grid { grid-template-columns: repeat(3, 1fr); } }
+    .test-card {
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.3s;
+    }
+    .test-card:hover { border-color: rgba(255,255,255,0.12); }
+    .test-quote-icon {
+      color: rgba(255,255,255,0.15);
+      font-size: 30px;
+      font-family: serif;
+      line-height: 1;
+      margin-bottom: 16px;
+      user-select: none;
+    }
+    .test-card .quote {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+    .test-card .author {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .test-card .author-name { font-size: 14px; font-weight: 500; }
+    .test-card .author-role { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .test-bottom {
+      margin-top: 80px;
+      text-align: center;
+      font-size: 18px;
+      color: rgba(255,255,255,0.3);
+    }
+    @media (min-width: 768px) { .test-bottom { font-size: 20px; } }
+    .test-bottom .accent { color: #46FF76; font-weight: 700; font-style: italic; }
+
+    /* ===== PLATFORM ===== */
+    .platform { padding: 48px 0; background: #050505; }
+    @media (min-width: 768px) { .platform { padding: 128px 0; } }
+    .plat-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    @media (min-width: 768px) { .plat-features { grid-template-columns: repeat(4, 1fr); } }
+    .plat-feat-card {
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(10,10,10,1);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .plat-feat-card .icon { color: rgba(70,255,118,0.6); margin-bottom: 12px; font-size: 20px; }
+    .plat-feat-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .plat-feat-card p { font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.5; }
+
+    /* Trading terminal mockup */
+    .terminal {
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0a0a0e;
+      border: 1px solid rgba(70,255,118,0.15);
+      box-shadow: 0 0 60px rgba(70,255,118,0.05), inset 0 0 60px rgba(0,0,0,0.5);
+      margin-bottom: 64px;
+    }
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: #0d0d12;
+    }
+    .terminal-dots { display: flex; gap: 6px; }
+    .terminal-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-body { display: flex; }
+    .terminal-sidebar {
+      width: 180px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      padding: 12px;
+      background: #0b0b10;
+      display: none;
+    }
+    @media (min-width: 768px) { .terminal-sidebar { display: block; } }
+    .terminal-sidebar-title {
+      font-size: 9px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .watchlist-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      transition: background 0.2s;
+    }
+    .watchlist-item:hover { background: rgba(255,255,255,0.03); }
+    .watchlist-item.active {
+      border: 1px solid rgba(70,255,118,0.2);
+      background: rgba(70,255,118,0.03);
+    }
+    .watchlist-item .pair { font-size: 11px; font-weight: 600; }
+    .watchlist-item .price { font-size: 9px; color: rgba(255,255,255,0.3); }
+    .watchlist-item .change { font-size: 9px; font-family: monospace; }
+    .watchlist-item .change.up { color: #22c55e; }
+    .watchlist-item .change.down { color: #ef4444; }
+    .terminal-main { flex: 1; padding: 16px; }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .chart-header .pair-name { font-size: 14px; font-weight: 700; }
+    .chart-header .timeframes { display: flex; gap: 12px; }
+    .chart-header .timeframes span { font-size: 10px; color: rgba(255,255,255,0.2); font-family: monospace; }
+    .chart-header .timeframes span:first-child { color: rgba(255,255,255,0.3); }
+    .chart-btns { display: flex; gap: 8px; }
+    .chart-btns .buy-btn {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(70,255,118,0.1);
+      color: #46FF76;
+      border: 1px solid rgba(70,255,118,0.2);
+    }
+    .chart-btns .sell-btn {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(239,68,68,0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+    .chart-area {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #08080c;
+    }
+    @media (min-width: 768px) { .chart-area { height: 280px; } }
+    .chart-area svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .positions {
+      margin-top: 12px;
+      border-radius: 8px;
+      padding: 12px;
+      background: #0b0b10;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .positions-title {
+      font-size: 9px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .position-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+    .position-row .pair { color: rgba(255,255,255,0.6); font-family: monospace; }
+    .position-row .type { font-weight: 700; }
+    .position-row .type.buy { color: rgba(34,197,94,0.7); }
+    .position-row .type.sell { color: rgba(239,68,68,0.7); }
+    .position-row .lots { color: rgba(255,255,255,0.2); }
+    .position-row .profit { font-family: monospace; font-weight: 700; }
+    .position-row .profit.up { color: #22c55e; }
+    .position-row .profit.down { color: #ef4444; }
+    .terminal-orderbook {
+      width: 160px;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      padding: 12px;
+      background: #0b0b10;
+      display: none;
+    }
+    @media (min-width: 1024px) { .terminal-orderbook { display: block; } }
+    .ob-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px;
+      font-family: monospace;
+      padding: 2px 0;
+    }
+    .ob-row .ask { color: rgba(239,68,68,0.7); }
+    .ob-row .bid { color: rgba(34,197,94,0.7); }
+    .ob-row .mid { color: #46FF76; }
+    .ob-row .qty { color: rgba(255,255,255,0.2); }
+    .ob-btns { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .ob-btns button {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    /* Platform testimonials */
+    .plat-testimonials {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) { .plat-testimonials { grid-template-columns: 1fr 1fr; } }
+    .plat-test-card {
+      padding: 24px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(8,8,8,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .plat-test-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .plat-test-card .detail { font-size: 14px; color: rgba(255,255,255,0.3); line-height: 1.6; margin-bottom: 16px; }
+    .plat-test-author { display: flex; align-items: center; gap: 12px; }
+    .plat-test-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(70,255,118,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #46FF76;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .plat-test-author .name { font-size: 14px; font-weight: 500; }
+    .plat-test-author .role { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+    /* ===== TOURNAMENTS ===== */
+    .tournaments { padding: 48px 0; background: #050505; }
+    @media (min-width: 768px) { .tournaments { padding: 128px 0; } }
+    .tourn-grid { display: grid; gap: 48px; }
+    @media (min-width: 1024px) { .tourn-grid { grid-template-columns: 1fr 1fr; } }
+    .tourn-left h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .tourn-left h2 .dim { color: rgba(255,255,255,0.5); }
+    .tourn-left > p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 448px;
+    }
+    @media (min-width: 768px) { .tourn-left > p { font-size: 15px; } }
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(10,10,10,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .ranking-item .rank { color: rgba(255,255,255,0.3); font-size: 18px; font-weight: 700; width: 24px; }
+    .ranking-item .badge { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+    .ranking-item .name { font-size: 14px; font-weight: 500; }
+    .ranking-item .amount { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .tourn-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (min-width: 1024px) { .tourn-right { align-items: flex-end; padding-top: 80px; } }
+    .tourn-cta-card {
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(8,8,8,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .tourn-cta-card p { font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+
+    /* ===== SUPPORT ===== */
+    .support {
+      padding: 48px 0;
+      background: #050505;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { .support { padding: 128px 0; } }
+    .support-grid-bg {
+      position: absolute; inset: 0;
+      background-image: repeating-conic-gradient(at 1px 1px, rgba(255,255,255,0.03) 0deg, rgba(255,255,255,0.03) 90deg, transparent 90deg, transparent 180deg);
+      background-size: 60px 60px;
+    }
+    .support .container { position: relative; z-index: 10; }
+    .support-inner { max-width: 672px; margin: 0 auto; text-align: center; }
+    .support h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .support p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    @media (min-width: 768px) { .support p { font-size: 15px; } }
+    .support-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      transition: all 0.3s;
+    }
+    .support-btn:hover { background: rgba(255,255,255,0.08); }
+    .support-btn svg { color: #46FF76; }
+
+    /* ===== ABOUT ===== */
+    .about { padding: 48px 0; background: #050505; overflow: hidden; }
+    @media (min-width: 768px) { .about { padding: 128px 0; } }
+    .about-grid { display: grid; gap: 48px; align-items: center; }
+    @media (min-width: 1024px) { .about-grid { grid-template-columns: 1fr 1fr; } }
+    .about-img {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .about-img img { width: 100%; height: auto; }
+    .about-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(70,255,118,0.05) 0%, transparent 50%);
+    }
+    .about-content h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .about-content h2 .dim { color: rgba(255,255,255,0.5); }
+    .about-content h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    .about-content p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    @media (min-width: 768px) { .about-content p { font-size: 15px; } }
+    .about-bottom-card {
+      margin-top: 64px;
+      padding: 32px;
+      border-radius: 12px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(8,8,8,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .about-bottom-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .about-bottom-card p { font-size: 14px; color: rgba(255,255,255,0.35); line-height: 1.6; margin-bottom: 0; }
+
+    /* ===== DEMO ===== */
+    .demo {
+      padding: 48px 0;
+      background: #050505;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { .demo { padding: 128px 0; } }
+    .demo-grid-bg {
+      position: absolute; inset: 0;
+      background-image: repeating-conic-gradient(at 1px 1px, rgba(255,255,255,0.03) 0deg, rgba(255,255,255,0.03) 90deg, transparent 90deg, transparent 180deg);
+      background-size: 60px 60px;
+    }
+    .demo-glow {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(70,255,118,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .demo .container { position: relative; z-index: 10; text-align: center; }
+    .demo h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .demo .sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+      margin-bottom: 48px;
+      max-width: 512px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (min-width: 768px) { .demo .sub { font-size: 15px; } }
+    .demo-card {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 48px;
+      border-radius: 16px;
+      margin-bottom: 48px;
+      background: linear-gradient(145deg, rgba(18,18,20,0.95) 0%, rgba(8,8,8,0.98) 100%);
+      border: 1px solid rgba(70,255,118,0.15);
+      box-shadow: 0 0 60px rgba(70,255,118,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    @media (min-width: 768px) { .demo-card { padding: 48px; } }
+    .demo-card .label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .demo-card .amount-row { display: flex; align-items: baseline; gap: 8px; }
+    .demo-card .currency { font-size: 20px; color: rgba(255,255,255,0.4); font-weight: 500; }
+    @media (min-width: 768px) { .demo-card .currency { font-size: 24px; } }
+    .demo-card .amount {
+      font-size: clamp(3rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: #46FF76;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 40px rgba(70,255,118,0.35), 0 0 80px rgba(70,255,118,0.15);
+    }
+    .demo-card .demo-tag {
+      margin-top: 12px;
+      font-size: 12px;
+      color: rgba(70,255,118,0.4);
+      letter-spacing: 0.15em;
+    }
+
+    /* ===== FAQ ===== */
+    .faq { padding: 48px 0; background: #050505; }
+    @media (min-width: 768px) { .faq { padding: 128px 0; } }
+    .faq-inner { max-width: 768px; margin: 0 auto; }
+    .faq-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .faq-tab {
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .faq-tab.active {
+      background: #46FF76;
+      color: #050505;
+      border-color: #46FF76;
+    }
+    .faq-items { display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(15,15,16,1) 0%, rgba(8,8,8,1) 100%);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: border-color 0.3s;
+    }
+    .faq-item.open { border-color: rgba(70,255,118,0.15); }
+    .faq-item-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      text-align: left;
+      color: #fff;
+    }
+    .faq-item-header .num { font-size: 14px; color: rgba(255,255,255,0.2); font-family: monospace; margin-right: 12px; }
+    .faq-item-header .question { font-size: 14px; font-weight: 500; flex: 1; }
+    .faq-item-header .chevron {
+      width: 16px; height: 16px;
+      color: rgba(255,255,255,0.3);
+      transition: transform 0.3s;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-item.open .faq-item-header .chevron { transform: rotate(180deg); }
+    .faq-item-body {
+      display: none;
+      padding: 0 20px 20px 56px;
+    }
+    .faq-item.open .faq-item-body { display: block; }
+    .faq-item-body p { font-size: 14px; color: rgba(255,255,255,0.35); line-height: 1.6; }
+
+    /* ===== APP DOWNLOAD ===== */
+    .app-download {
+      padding: 48px 0;
+      background: #050505;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) { .app-download { padding: 128px 0; } }
+    .app-download-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(70,255,118,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .app-download .container { position: relative; z-index: 10; }
+    .app-grid { display: grid; gap: 48px; align-items: center; }
+    @media (min-width: 1024px) { .app-grid { grid-template-columns: 1fr 1fr; } }
+    .app-content h2 {
+      font-size: clamp(1.875rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .app-content h2 .dim { color: rgba(255,255,255,0.5); }
+    .app-content > p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 448px;
+    }
+    @media (min-width: 768px) { .app-content > p { font-size: 15px; } }
+    .store-btns { display: flex; flex-wrap: wrap; gap: 12px; }
+    .store-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: rgba(10,10,10,1);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s;
+    }
+    .store-btn:hover { border-color: rgba(255,255,255,0.15); }
+    .store-btn .store-icon { font-size: 20px; }
+    .store-btn .store-label { font-size: 10px; color: rgba(255,255,255,0.4); }
+    .store-btn .store-name { font-size: 14px; font-weight: 600; }
+    .app-phone-wrap { display: flex; justify-content: center; }
+    @media (min-width: 1024px) { .app-phone-wrap { justify-content: flex-end; } }
+    .phone-mockup {
+      position: relative;
+      width: 260px;
+      filter: drop-shadow(0 0 40px rgba(70,255,118,0.08));
+    }
+    @media (min-width: 768px) { .phone-mockup { width: 300px; } }
+    .phone-frame {
+      border-radius: 2.5rem;
+      overflow: hidden;
+      border: 3px solid rgba(255,255,255,0.12);
+      background: #0a0a0e;
+      padding: 12px;
+    }
+    .phone-notch {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .phone-notch-inner {
+      width: 96px; height: 20px;
+      border-radius: 9999px;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-screen {
+      border-radius: 16px;
+      overflow: hidden;
+      background: #08080c;
+    }
+    .phone-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 9px;
+      color: rgba(255,255,255,0.4);
+      font-family: monospace;
+    }
+    .phone-app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-app-header .pair { font-size: 12px; font-weight: 700; }
+    .phone-app-header .change { font-size: 9px; color: #22c55e; font-family: monospace; }
+    .phone-chart { padding: 12px; }
+    .phone-chart svg { width: 100%; height: auto; }
+    .phone-balance {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .phone-balance .label { font-size: 9px; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
+    .phone-balance .value { font-size: 18px; font-weight: 700; }
+    .phone-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .phone-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .phone-actions .buy-btn { background: #46FF76; color: #050505; }
+    .phone-actions .sell-btn { border: 1px solid rgba(70,255,118,0.3); color: #46FF76; background: transparent; }
+    .phone-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+    }
+    .phone-nav span { color: rgba(255,255,255,0.2); }
+    .phone-nav span:first-child { color: #46FF76; }
+    .phone-glow {
+      position: absolute;
+      inset: -48px;
+      z-index: -1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(70,255,118,0.06) 0%, transparent 70%);
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      background: #050505;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 48px 0;
+    }
+    .footer-top {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+    @media (min-width: 768px) {
+      .footer-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .footer-top img { height: 32px; margin-bottom: 16px; }
+    .footer-top .desc { font-size: 14px; color: rgba(255,255,255,0.4); max-width: 448px; }
+    .footer-nav { display: flex; flex-wrap: wrap; gap: 24px; }
+    .footer-nav a {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.1em;
+      transition: color 0.2s;
+    }
+    .footer-nav a:hover { color: #fff; }
+    .risk-warning {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 32px;
+    }
+    .risk-warning h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 16px;
+    }
+    .risk-warning p {
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 32px;
+      padding-top: 24px;
+      text-align: center;
+    }
+    .footer-bottom p { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+    /* ===== ANIMATED SECTION ===== */
+    .anim-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .anim-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="site-header" id="site-header" style="background: rgba(5,5,5,0.6);">
+  <div class="container">
+    <div class="header-inner">
+      <a href="#inicio" class="header-logo">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663058373355/qMrLaHMKmCgctSjX.png" alt="Codex Broker" />
+      </a>
+      <nav class="desktop-nav">
+        <a href="#inicio">INÍCIO</a>
+        <a href="#plataforma">PLATAFORMA</a>
+        <a href="#torneios">TORNEIOS</a>
+        <a href="#sobre">SOBRE</a>
+        <a href="#duvidas">DÚVIDAS</a>
+      </nav>
+      <div class="desktop-cta">
+        <a href="https://app.codexbroker.com/" class="login-link">Entrar <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="https://app.codexbroker.com/" class="cta-btn">Começar Agora <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
+      </div>
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="container" style="padding-top:24px;padding-bottom:24px;">
+      <nav>
+        <a href="#inicio" class="mobile-link">INÍCIO</a>
+        <a href="#plataforma" class="mobile-link">PLATAFORMA</a>
+        <a href="#torneios" class="mobile-link">TORNEIOS</a>
+        <a href="#sobre" class="mobile-link">SOBRE</a>
+        <a href="#duvidas" class="mobile-link">DÚVIDAS</a>
+      </nav>
+      <div class="mobile-menu-cta">
+        <a href="https://app.codexbroker.com/" style="font-size:13px;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:8px;padding:8px 12px;">Entrar <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="https://app.codexbroker.com/" class="btn-primary" style="justify-content:center;font-size:13px;">Começar Agora <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="inicio">
+  <div class="hero-grid"></div>
+  <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+  <div class="hero-glow">
+    <div class="hero-glow-radial"></div>
+    <div class="hero-glow-line"></div>
+  </div>
+  <!-- Floating icons -->
+  <div class="floating-icon" style="top:15%;left:6%;opacity:0.06;animation:floatIcon 7s ease-in-out infinite;">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="35" ry="35" stroke="white" stroke-width="1"/><ellipse cx="40" cy="40" rx="25" ry="25" stroke="white" stroke-width="0.6"/><path d="M35 25 C35 25 50 30 45 40 C40 50 30 45 35 55" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+  </div>
+  <div class="floating-icon" style="top:40%;left:3%;opacity:0.04;animation:floatIcon 8.5s ease-in-out 1.5s infinite;">
+    <svg width="60" height="60" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="35" ry="35" stroke="white" stroke-width="1"/><ellipse cx="40" cy="40" rx="25" ry="25" stroke="white" stroke-width="0.6"/><path d="M35 25 C35 25 50 30 45 40 C40 50 30 45 35 55" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+  </div>
+  <div class="floating-icon" style="top:12%;right:5%;opacity:0.06;animation:floatIcon 7.8s ease-in-out 0.8s infinite;">
+    <svg width="90" height="90" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="35" ry="35" stroke="white" stroke-width="1"/><ellipse cx="40" cy="40" rx="25" ry="25" stroke="white" stroke-width="0.6"/><path d="M35 25 C35 25 50 30 45 40 C40 50 30 45 35 55" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+  </div>
+  <div class="floating-icon" style="top:45%;right:3%;opacity:0.04;animation:floatIcon 9s ease-in-out 2.2s infinite;">
+    <svg width="65" height="65" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="35" ry="35" stroke="white" stroke-width="1"/><ellipse cx="40" cy="40" rx="25" ry="25" stroke="white" stroke-width="0.6"/><path d="M35 25 C35 25 50 30 45 40 C40 50 30 45 35 55" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span>+500.000 Investidores</span>
+      <span class="badge-tag">ATIVOS</span>
+    </div>
+    <h1>
+      <span class="dim">Feita para quem</span><br/>
+      <span>decide crescer junto</span>
+    </h1>
+    <p class="subtitle">Faça parte de uma plataforma onde estratégia e eficiência caminham lado a lado com você.</p>
+    <div class="hero-ctas">
+      <a href="https://app.codexbroker.com/" class="btn-primary">Criar Conta <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
+      <a href="https://app.codexbroker.com/" class="btn-ghost">Ver Demonstração <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="hero-scroll-line"></div></div>
+  <div class="hero-bottom-text">Você ao lado de traders que evoluem juntos.</div>
+</section>
+
+<!-- ==================== LOGO TICKER ==================== -->
+<section class="ticker-section">
+  <div style="display:flex;">
+    <div class="ticker-track">
+      <div class="ticker-item">⬡ HSBC</div>
+      <div class="ticker-item">🔴 Santander</div>
+      <div class="ticker-item">◉ bitcoin</div>
+      <div class="ticker-item">𝕋 TESLA</div>
+      <div class="ticker-item"> Apple</div>
+      <div class="ticker-item">◆ ethereum</div>
+      <div class="ticker-item">⬡ HSBC</div>
+      <div class="ticker-item">🔴 Santander</div>
+      <div class="ticker-item">◉ bitcoin</div>
+      <div class="ticker-item">𝕋 TESLA</div>
+      <div class="ticker-item"> Apple</div>
+      <div class="ticker-item">◆ ethereum</div>
+      <div class="ticker-item">⬡ HSBC</div>
+      <div class="ticker-item">🔴 Santander</div>
+      <div class="ticker-item">◉ bitcoin</div>
+      <div class="ticker-item">𝕋 TESLA</div>
+      <div class="ticker-item"> Apple</div>
+      <div class="ticker-item">◆ ethereum</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRESENCE ==================== -->
+<section class="presence anim-section">
+  <div class="presence-overlay"></div>
+  <canvas id="presence-canvas"></canvas>
+  <div class="container">
+    <div class="presence-grid">
+      <div>
+        <div class="section-badge">Presença</div>
+        <h2>
+          <span class="dim">Mais de </span><span>100 mil traders</span><br/>
+          <span class="dim">operam lado a lado com a </span><span>Codex Broker.</span>
+        </h2>
+      </div>
+      <div class="presence-right">
+        <p>A Codex Broker é construída sobre parceria e confiança.<br/>Unimos tecnologia, educação prática e acompanhamento<br/>real para quem quer operar com clareza e consistência.</p>
+      </div>
+    </div>
+    <div class="presence-badges">
+      <div class="presence-badge green">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#46FF76" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/></svg>
+        <span>Saque Instantâneo</span>
+      </div>
+      <div class="presence-badge rose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+        <span>Suporte disponível 24/7</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ECOSYSTEM ==================== -->
+<section class="ecosystem anim-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Ecossistema</div>
+      <h2><span class="dim">A plataforma que </span><span>opera com você.</span></h2>
+      <p>Tecnologia, suporte e comunidade integrados<br/>para fortalecer cada decisão no mercado.</p>
+    </div>
+    <div class="eco-grid">
+      <div class="eco-card">
+        <div class="eco-card-img">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663058373355/QBz6ASgzFA4rVVxHRNfKRk/eco-security-9xeNCYV9DsSUgjXneBLBu9.webp" alt="Segurança" loading="lazy"/>
+          <div class="eco-card-fade"></div>
+        </div>
+        <div class="eco-card-content"><div class="divider"></div><h3>Segurança</h3><p>Proteção e transparência em cada operação.</p></div>
+      </div>
+      <div class="eco-card">
+        <div class="eco-card-img">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663058373355/QBz6ASgzFA4rVVxHRNfKRk/eco-assets-9RorRDYBw7syFU575buFih.webp" alt="+200 Ativos" loading="lazy"/>
+          <div class="eco-card-fade"></div>
+        </div>
+        <div class="eco-card-content"><div class="divider"></div><h3>+200 Ativos</h3><p>Diversos mercados para ampliar suas oportunidades.</p></div>
+      </div>
+      <div class="eco-card">
+        <div class="eco-card-img">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663058373355/QBz6ASgzFA4rVVxHRNfKRk/eco-training-4Q4Mt6bhBbrK6SkVggHtFX.webp" alt="Treinamentos" loading="lazy"/>
+          <div class="eco-card-fade"></div>
+        </div>
+        <div class="eco-card-content"><div class="divider"></div><h3>Treinamentos</h3><p>Lives, materiais e conteúdos práticos para evoluir sua estratégia continuamente.</p></div>
+      </div>
+      <div class="eco-card">
+        <div class="eco-card-img">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663058373355/QBz6ASgzFA4rVVxHRNfKRk/eco-community-UAKyd5n95XH8tTMzkV9hWz.webp" alt="Comunidade" loading="lazy"/>
+          <div class="eco-card-fade"></div>
+        </div>
+        <div class="eco-card-content"><div class="divider"></div><h3>Comunidade</h3><p>Participe de desafios internos e evolua junto com outros traders.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TESTIMONIALS ==================== -->
+<section class="testimonials anim-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Depoimentos</div>
+      <h2><span class="accent">Resultados reais </span><span>têm histórias reais.</span></h2>
+      <p>E elas vêm direto de quem opera<br/>lado a lado com a Codex Broker todos os dias.</p>
+    </div>
+    <div class="test-grid">
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">A conta demo me ajudou a começar sem medo. Testei minhas estratégias antes de investir de verdade.</p><div class="author"><p class="author-name">Lucas M.</p><p class="author-role">Professor de Inglês</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">O melhor é a transparência com o cliente. Você sabe exatamente o que está acontecendo.</p><div class="author"><p class="author-name">Carla S.</p><p class="author-role">Gestora de Marketing</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">O suporte humanizado fez total diferença. Sempre que precisei, fui atendido rapidamente.</p><div class="author"><p class="author-name">Rafael T.</p><p class="author-role">Analista de Dados</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">Sou veterano e recomendo demais! A Codex Broker entrega o que promete.</p><div class="author"><p class="author-name">Fernando A.</p><p class="author-role">Diretor Financeiro</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">Plataforma muito intuitiva. Consegui operar desde o primeiro dia sem dificuldade.</p><div class="author"><p class="author-name">Amanda R.</p><p class="author-role">Diretora at Kalendd</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">A Codex Broker me motiva demais! O ambiente é de crescimento real.</p><div class="author"><p class="author-name">Juliana P.</p><p class="author-role">Diretora at Kingdom</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">Fácil de operar e bem intuitiva. Recomendo para quem está começando.</p><div class="author"><p class="author-name">Thiago N.</p><p class="author-role">Engenheiro de Software</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">O payout é totalmente justo. Nunca tive problemas com saques.</p><div class="author"><p class="author-name">Mariana L.</p><p class="author-role">Advogada</p></div></div>
+      <div class="test-card"><div class="test-quote-icon">&ldquo;&ldquo;</div><p class="quote">Comecei pela demo e já evolui muito! A comunidade também ajuda bastante.</p><div class="author"><p class="author-name">Diego L.</p><p class="author-role">Vendedor Autônomo</p></div></div>
+    </div>
+    <div class="test-bottom">Evolua no <span class="accent">TRADING</span> com quem acredita em crescimento conjunto.</div>
+  </div>
+</section>
+
+<!-- ==================== PLATFORM ==================== -->
+<section class="platform anim-section" id="plataforma">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">Plataforma</div>
+      <h2><span class="dim">Tecnologia que </span><span>fortalece sua decisão.</span></h2>
+      <p>Opere com fluidez, sem barreiras.</p>
+      <div style="margin-top:24px;"><a href="https://app.codexbroker.com/" class="btn-primary">Começar Agora <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a></div>
+    </div>
+    <div class="plat-features">
+      <div class="plat-feat-card"><div class="icon">⚡</div><h4>Ultra praticidade</h4><p>Opere sem travamentos.</p></div>
+      <div class="plat-feat-card"><div class="icon">📊</div><h4>+200 ativos disponíveis</h4><p>Diversifique entre todos ativos.</p></div>
+      <div class="plat-feat-card"><div class="icon">🎯</div><h4>Treine sem limites</h4><p>Crie agora a sua conta demo.</p></div>
+      <div class="plat-feat-card"><div class="icon">⚙️</div><h4>Execução otimizada</h4><p>Interface moderna para você.</p></div>
+    </div>
+
+    <!-- Terminal mockup -->
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="terminal-dots"><span style="background:rgba(239,68,68,0.7)"></span><span style="background:rgba(234,179,8,0.7)"></span><span style="background:rgba(34,197,94,0.7)"></span></div>
+          <span style="font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;">Codex Broker Terminal</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <span style="font-size:10px;color:rgba(70,255,118,0.6);font-family:monospace;">LIVE</span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.2);font-family:monospace;">Balance: $125,450.00</span>
+        </div>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-sidebar">
+          <div class="terminal-sidebar-title">Watchlist</div>
+          <div class="watchlist-item active"><div><div class="pair">EUR/USD</div><div class="price">1.0982</div></div><div class="change up">+0.45%</div></div>
+          <div class="watchlist-item"><div><div class="pair">GBP/JPY</div><div class="price">192.34</div></div><div class="change up">+0.32%</div></div>
+          <div class="watchlist-item"><div><div class="pair">BTC/USD</div><div class="price">68,450</div></div><div class="change up">+2.1%</div></div>
+          <div class="watchlist-item"><div><div class="pair">XAU/USD</div><div class="price">2,178</div></div><div class="change down">-0.18%</div></div>
+        </div>
+        <div class="terminal-main">
+          <div class="chart-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="pair-name">EUR/USD</span>
+              <div class="timeframes"><span>1M</span><span>5M</span><span>1H</span><span>1D</span></div>
+            </div>
+            <div class="chart-btns"><button class="buy-btn">BUY</button><button class="sell-btn">SELL</button></div>
+          </div>
+          <div class="chart-area">
+            <svg viewBox="0 0 600 280" preserveAspectRatio="none">
+              <line x1="0" y1="0" x2="600" y2="0" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <line x1="0" y1="56" x2="600" y2="56" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <line x1="0" y1="112" x2="600" y2="112" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <line x1="0" y1="168" x2="600" y2="168" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <line x1="0" y1="224" x2="600" y2="224" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <line x1="0" y1="280" x2="600" y2="280" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+              <!-- Candlesticks -->
+              <g><line x1="30" y1="58.4" x2="30" y2="120" stroke="#22c55e" stroke-width="1"/><rect x="25" y="67" width="10" height="33" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="58" y1="55" x2="58" y2="107.6" stroke="#ef4444" stroke-width="1"/><rect x="53" y="73.6" width="10" height="17.6" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="86" y1="39.6" x2="86" y2="107.6" stroke="#22c55e" stroke-width="1"/><rect x="81" y="53.6" width="10" height="28.6" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="114" y1="56" x2="114" y2="91.4" stroke="#ef4444" stroke-width="1"/><rect x="109" y="60.4" width="10" height="15.4" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="142" y1="49.4" x2="142" y2="87" stroke="#22c55e" stroke-width="1"/><rect x="137" y="49.4" width="10" height="30.8" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="170" y1="62" x2="170" y2="82.4" stroke="#ef4444" stroke-width="1"/><rect x="165" y="62" width="10" height="8.8" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="198" y1="61" x2="198" y2="72.8" stroke="#22c55e" stroke-width="1"/><rect x="193" y="62.4" width="10" height="22" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="226" y1="57.6" x2="226" y2="72.8" stroke="#ef4444" stroke-width="1"/><rect x="221" y="57.6" width="10" height="17.6" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="254" y1="54.6" x2="254" y2="66.6" stroke="#22c55e" stroke-width="1"/><rect x="249" y="54.6" width="10" height="26.4" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="282" y1="51.2" x2="282" y2="63.6" stroke="#ef4444" stroke-width="1"/><rect x="277" y="51.2" width="10" height="15.4" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="310" y1="50" x2="310" y2="59.6" stroke="#22c55e" stroke-width="1"/><rect x="305" y="50" width="10" height="22" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="338" y1="47.8" x2="338" y2="55.2" stroke="#ef4444" stroke-width="1"/><rect x="333" y="47.8" width="10" height="15.4" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="366" y1="45.6" x2="366" y2="53" stroke="#22c55e" stroke-width="1"/><rect x="361" y="45.6" width="10" height="17.6" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="394" y1="42" x2="394" y2="50.8" stroke="#ef4444" stroke-width="1"/><rect x="389" y="42" width="10" height="13.2" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="422" y1="38" x2="422" y2="48.6" stroke="#22c55e" stroke-width="1"/><rect x="417" y="38" width="10" height="17.6" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="450" y1="34.2" x2="450" y2="46.2" stroke="#ef4444" stroke-width="1"/><rect x="445" y="34.2" width="10" height="11" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="478" y1="32.4" x2="478" y2="42" stroke="#22c55e" stroke-width="1"/><rect x="473" y="32.4" width="10" height="15.4" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="506" y1="29.8" x2="506" y2="39.8" stroke="#ef4444" stroke-width="1"/><rect x="501" y="29.8" width="10" height="11" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <g><line x1="534" y1="27.6" x2="534" y2="37.6" stroke="#22c55e" stroke-width="1"/><rect x="529" y="27.6" width="10" height="22" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+              <g><line x1="562" y1="25.2" x2="562" y2="35.2" stroke="#ef4444" stroke-width="1"/><rect x="557" y="25.2" width="10" height="15.4" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+              <!-- MA line -->
+              <path d="M 30,93 L 58,90 L 86,79 L 114,73 L 142,65 L 170,64 L 198,57 L 226,55 L 254,51 L 282,49 L 310,46 L 338,44 L 366,42 L 394,39 L 422,37 L 450,34 L 478,31 L 506,29 L 534,27 L 562,25" fill="none" stroke="rgba(70,255,118,0.3)" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="positions">
+            <div class="positions-title">Open Positions</div>
+            <div class="position-row"><div style="display:flex;align-items:center;gap:12px;"><span class="pair">EUR/USD</span><span class="type buy">BUY</span><span class="lots">0.50 lots</span></div><span class="profit up">+38.90</span></div>
+            <div class="position-row"><div style="display:flex;align-items:center;gap:12px;"><span class="pair">GBP/JPY</span><span class="type sell">SELL</span><span class="lots">0.25 lots</span></div><span class="profit up">+12.40</span></div>
+            <div class="position-row"><div style="display:flex;align-items:center;gap:12px;"><span class="pair">BTC/USD</span><span class="type buy">BUY</span><span class="lots">0.10 lots</span></div><span class="profit down">-5.20</span></div>
+          </div>
+        </div>
+        <div class="terminal-orderbook">
+          <div class="terminal-sidebar-title">Order Book</div>
+          <div class="ob-row"><span class="ask">1.0985</span><span class="qty">120</span></div>
+          <div class="ob-row"><span class="ask">1.0984</span><span class="qty">85</span></div>
+          <div class="ob-row"><span class="ask">1.0983</span><span class="qty">200</span></div>
+          <div class="ob-row"><span class="mid">1.0982</span><span class="qty">150</span></div>
+          <div class="ob-row"><span class="bid">1.0981</span><span class="qty">95</span></div>
+          <div class="ob-row"><span class="bid">1.0980</span><span class="qty">180</span></div>
+          <div class="ob-row"><span class="bid">1.0979</span><span class="qty">60</span></div>
+          <div class="ob-btns">
+            <button style="background:rgba(70,255,118,0.1);color:#46FF76;border:1px solid rgba(70,255,118,0.2);">BUY 1.0982</button>
+            <button style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);">SELL 1.0981</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform testimonials -->
+    <div class="plat-testimonials">
+      <div class="plat-test-card"><h4>Hoje me sinto muito mais seguro nas operações.</h4><p class="detail">A execução das ordens é rápida e a plataforma passa muita confiança em momentos decisivos.</p><div class="plat-test-author"><div class="plat-test-avatar">R</div><div><p class="name">Rafael Martins</p><p class="role">Trader</p></div></div></div>
+      <div class="plat-test-card"><h4>Experiência acima do padrão!</h4><p class="detail">Tudo funciona de forma intuitiva e eficiente, sem bugs ou atrasos.</p><div class="plat-test-author"><div class="plat-test-avatar">L</div><div><p class="name">Lael Prado</p><p class="role">Especialista Trader</p></div></div></div>
+      <div class="plat-test-card"><h4>Plataforma incrível!</h4><p class="detail">Fiz minhas operações de forma simples e na hora de solicitar o saque, caiu em segundos.</p><div class="plat-test-author"><div class="plat-test-avatar">P</div><div><p class="name">Pedro Lemos</p><p class="role">Trader</p></div></div></div>
+      <div class="plat-test-card"><h4>Adorei esta sala de negociação da Codex Broker!</h4><p class="detail">A Codex Broker elevou meu nível como trader. A plataforma é estável, rápida e com recursos que nunca vi em nenhuma outra corretora.</p><div class="plat-test-author"><div class="plat-test-avatar">M</div><div><p class="name">Marcos Tavares</p><p class="role">Gestor de risco</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TOURNAMENTS ==================== -->
+<section class="tournaments anim-section" id="torneios">
+  <div class="container">
+    <div class="tourn-grid">
+      <div class="tourn-left">
+        <div class="section-badge">Torneios</div>
+        <h2><span class="dim">Participe dos nossos </span><span>torneios</span></h2>
+        <p>Diversas competições para você evoluir sua performance, testar estratégias e crescer junto com a comunidade.</p>
+        <div>
+          <div class="ranking-item"><div style="display:flex;align-items:center;gap:16px;"><span class="rank">1</span><div><span class="badge" style="color:#46FF76;opacity:0.8;">Legend</span><span class="name">Alden R.</span></div></div><span class="amount">$ 138,086</span></div>
+          <div class="ranking-item"><div style="display:flex;align-items:center;gap:16px;"><span class="rank">2</span><div><span class="badge" style="color:#aaa;opacity:0.8;">Master</span><span class="name">Nolan W.</span></div></div><span class="amount">$ 99,220</span></div>
+          <div class="ranking-item"><div style="display:flex;align-items:center;gap:16px;"><span class="rank">3</span><div><span class="badge" style="color:#46FF76;opacity:0.8;">Pro</span><span class="name">Michael R.</span></div></div><span class="amount">$ 36,712</span></div>
+        </div>
+        <a href="https://app.codexbroker.com/" style="font-size:14px;color:rgba(255,255,255,0.3);margin-top:16px;display:inline-block;">Ver lista completa</a>
+      </div>
+      <div class="tourn-right">
+        <div class="tourn-cta-card">
+          <p>Treine suas estratégias e acompanhe sua evolução em tempo real.</p>
+          <a href="https://app.codexbroker.com/" class="btn-primary">Participar Agora <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SUPPORT ==================== -->
+<section class="support anim-section">
+  <div class="support-grid-bg"></div>
+  <div class="container">
+    <div class="support-inner">
+      <div class="section-badge">Suporte</div>
+      <h2>Aqui você nunca opera sozinho!</h2>
+      <p>Equipe de suporte preparada para acompanhar a sua<br/>jornada e te ajudar com respostas rápidas e orientação clara.</p>
+      <a href="https://app.codexbroker.com/" class="support-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#46FF76" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Fale Conosco
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABOUT ==================== -->
+<section class="about anim-section" id="sobre">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-img">
+        <img src="https://framerusercontent.com/images/2FZsAs7OevoN5Ye53cAoBQAEk.webp?width=4883&height=3255" alt="Codex Broker Team" loading="lazy"/>
+        <div class="about-img-overlay"></div>
+      </div>
+      <div class="about-content">
+        <div class="section-badge">Sobre</div>
+        <h2><span class="dim">Feita para quem acredita</span><br/><span>que crescer é evoluir junto.</span></h2>
+        <h3>Confiança, estratégia e parceria real</h3>
+        <p>A Codex Broker é uma corretora pensada para traders que valorizam suporte presente, decisões conscientes e evolução constante no mercado.</p>
+        <a href="https://app.codexbroker.com/" class="btn-primary">Começar Agora <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a>
+      </div>
+    </div>
+    <div class="about-bottom-card">
+      <h3>Cresça com a gente</h3>
+      <p>Ambiente direto, suporte ativo e tecnologia preparada para fortalecer sua jornada no trading.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DEMO ==================== -->
+<section class="demo anim-section">
+  <div class="demo-grid-bg"></div>
+  <div class="demo-glow"></div>
+  <div class="container">
+    <div class="section-badge">Conta Demo</div>
+    <h2>Estude e teste métodos gratuitamente!</h2>
+    <p class="sub">Uma conta para evoluir sua estratégia quando quiser.</p>
+    <div class="demo-card">
+      <div class="label">Saldo disponível</div>
+      <div class="amount-row">
+        <span class="currency">R$</span>
+        <span class="amount" id="demo-counter">0</span>
+      </div>
+      <div class="demo-tag">CONTA DEMO</div>
+    </div>
+    <div><a href="https://app.codexbroker.com/" class="btn-primary">Criar Conta Demo <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></a></div>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="faq anim-section" id="duvidas">
+  <div class="container">
+    <div class="faq-inner">
+      <div class="section-header">
+        <div class="section-badge">Dúvidas</div>
+        <h2><span class="dim">Perguntas </span><span>Frequentes</span></h2>
+        <p>Selecione o tema abaixo e tire as suas dúvidas.</p>
+      </div>
+      <div class="faq-tabs" id="faq-tabs">
+        <button class="faq-tab active" data-tab="Conta">Conta</button>
+        <button class="faq-tab" data-tab="Movimentações">Movimentações</button>
+        <button class="faq-tab" data-tab="Plataforma">Plataforma</button>
+        <button class="faq-tab" data-tab="Privacidade">Privacidade</button>
+        <button class="faq-tab" data-tab="Suporte">Suporte</button>
+      </div>
+      <div class="faq-items" id="faq-items"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== APP DOWNLOAD ==================== -->
+<section class="app-download">
+  <div class="app-download-glow"></div>
+  <div class="container">
+    <div class="app-grid">
+      <div class="app-content">
+        <div class="section-badge">App Mobile</div>
+        <h2><span class="dim">Opere de </span><span>qualquer lugar.</span></h2>
+        <p>Baixe o app da Codex Broker e tenha acesso completo à plataforma na palma da sua mão. Disponível para iOS e Android.</p>
+        <div class="store-btns">
+          <a href="https://app.codexbroker.com/" class="store-btn"><span class="store-icon"></span><div><div class="store-label">Disponível na</div><div class="store-name">App Store</div></div></a>
+          <a href="https://app.codexbroker.com/" class="store-btn"><span class="store-icon">📱</span><div><div class="store-label">Disponível no</div><div class="store-name">Google Play</div></div></a>
+        </div>
+      </div>
+      <div class="app-phone-wrap">
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-notch"><div class="phone-notch-inner"></div></div>
+            <div class="phone-screen">
+              <div class="phone-status"><span>9:41</span><span>●</span></div>
+              <div class="phone-app-header"><span class="pair">EUR/USD</span><span class="change">+0.45%</span></div>
+              <div class="phone-chart">
+                <svg viewBox="0 0 260 120">
+                  <line x1="0" y1="0" x2="260" y2="0" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                  <line x1="0" y1="40" x2="260" y2="40" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                  <line x1="0" y1="80" x2="260" y2="80" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                  <line x1="0" y1="120" x2="260" y2="120" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                  <g><line x1="15" y1="35" x2="15" y2="72" stroke="#22c55e" stroke-width="1"/><rect x="11" y="45" width="8" height="20" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="30" y1="38" x2="30" y2="62" stroke="#ef4444" stroke-width="1"/><rect x="26" y="45" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="45" y1="32" x2="45" y2="60" stroke="#22c55e" stroke-width="1"/><rect x="41" y="40" width="8" height="15" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="60" y1="30" x2="60" y2="55" stroke="#ef4444" stroke-width="1"/><rect x="56" y="40" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="75" y1="28" x2="75" y2="58" stroke="#22c55e" stroke-width="1"/><rect x="71" y="35" width="8" height="15" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="90" y1="25" x2="90" y2="50" stroke="#ef4444" stroke-width="1"/><rect x="86" y="35" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="105" y1="22" x2="105" y2="52" stroke="#22c55e" stroke-width="1"/><rect x="101" y="30" width="8" height="15" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="120" y1="20" x2="120" y2="48" stroke="#ef4444" stroke-width="1"/><rect x="116" y="30" width="8" height="12" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="135" y1="18" x2="135" y2="50" stroke="#22c55e" stroke-width="1"/><rect x="131" y="28" width="8" height="14" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="150" y1="15" x2="150" y2="45" stroke="#ef4444" stroke-width="1"/><rect x="146" y="28" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="165" y1="12" x2="165" y2="42" stroke="#22c55e" stroke-width="1"/><rect x="161" y="25" width="8" height="13" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="180" y1="10" x2="180" y2="40" stroke="#ef4444" stroke-width="1"/><rect x="176" y="25" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="195" y1="14" x2="195" y2="42" stroke="#22c55e" stroke-width="1"/><rect x="191" y="22" width="8" height="13" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="210" y1="10" x2="210" y2="38" stroke="#ef4444" stroke-width="1"/><rect x="206" y="22" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <g><line x1="225" y1="12" x2="225" y2="38" stroke="#22c55e" stroke-width="1"/><rect x="221" y="20" width="8" height="12" fill="#22c55e" stroke="#22c55e" stroke-width="1"/></g>
+                  <g><line x1="240" y1="8" x2="240" y2="35" stroke="#ef4444" stroke-width="1"/><rect x="236" y="20" width="8" height="10" fill="transparent" stroke="#ef4444" stroke-width="1"/></g>
+                  <path d="M 15,58 L 45,48 L 75,42 L 105,38 L 135,35 L 165,32 L 195,28 L 225,25 L 245,22" fill="none" stroke="rgba(70,255,118,0.4)" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="phone-balance"><div class="label">Portfolio balance</div><div class="value">$125,450.00</div></div>
+              <div class="phone-actions"><button class="buy-btn">BUY</button><button class="sell-btn">SELL</button></div>
+              <div class="phone-nav"><span>⌂</span><span>◎</span><span>⊞</span><span>☰</span></div>
+            </div>
+          </div>
+          <div class="phone-glow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663058373355/qMrLaHMKmCgctSjX.png" alt="Codex Broker"/>
+        <p class="desc">Faça parte da plataforma que cresce junto aos seus traders no mercado global.</p>
+      </div>
+      <nav class="footer-nav">
+        <a href="#inicio">INÍCIO</a>
+        <a href="#plataforma">PLATAFORMA</a>
+        <a href="#sobre">SOBRE</a>
+        <a href="#duvidas">DÚVIDAS</a>
+      </nav>
+    </div>
+    <div class="risk-warning">
+      <h4>Aviso de Risco</h4>
+      <p>A Codex Broker não é uma instituição financeira e não possui autorização da Comissão de Valores Mobiliários ("CVM") para atuar como intermediadora, corretora ou distribuidora de valores mobiliários. Todo o conteúdo disponibilizado por meio de sua plataforma possui caráter exclusivamente educacional e informativo, não configurando recomendação de investimento, oferta pública ou solicitação para compra ou venda de quaisquer ativos financeiros.</p>
+      <p>As análises, projeções e simulações eventualmente apresentadas têm como base dados históricos e interpretações de mercado, não representando garantia de rentabilidade futura. Qualquer decisão de investimento deve ser tomada de forma independente e consciente pelo próprio investidor, considerando seus objetivos, perfil de risco e situação financeira.</p>
+      <p>A rentabilidade passada não constitui garantia de resultados futuros. O mercado financeiro é volátil por natureza, podendo gerar ganhos significativos, mas também perdas substanciais em períodos curtos de tempo.</p>
+      <p>Instrumentos como derivativos, contratos futuros, opções e operações alavancadas são considerados de alto risco e podem resultar na perda parcial ou total do capital investido. Recomenda-se que o investidor busque orientação profissional independente antes de iniciar qualquer operação no mercado financeiro.</p>
+      <p>A Codex Broker não se responsabiliza por decisões de investimento tomadas com base nos conteúdos, ferramentas ou materiais disponibilizados em seus canais.</p>
+    </div>
+    <div class="footer-bottom"><p>Codex Broker&copy; 2026 Todos os direitos reservados.</p></div>
+  </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+// === Header scroll effect ===
+const header = document.getElementById('site-header');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// === Mobile menu toggle ===
+const mobileToggle = document.getElementById('mobile-toggle');
+const mobileMenu = document.getElementById('mobile-menu');
+mobileToggle.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+  const isOpen = mobileMenu.classList.contains('open');
+  mobileToggle.innerHTML = isOpen
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+    mobileToggle.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>';
+  });
+});
+
+// === Smooth scroll ===
+document.addEventListener('click', (e) => {
+  const anchor = e.target.closest('a[href^="#"]');
+  if (anchor) {
+    e.preventDefault();
+    const id = anchor.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+// === Hero particles canvas ===
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.3 + 0.05,
+    });
+  }
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(70,255,118,' + p.alpha + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// === Presence world map canvas ===
+(function() {
+  const canvas = document.getElementById('presence-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function draw() {
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = canvas.offsetHeight * 2;
+    ctx.scale(2, 2);
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    const continents = [
+      {xMin:0.08,xMax:0.28,yMin:0.12,yMax:0.45,density:0.35},
+      {xMin:0.18,xMax:0.32,yMin:0.5,yMax:0.88,density:0.3},
+      {xMin:0.42,xMax:0.56,yMin:0.1,yMax:0.38,density:0.45},
+      {xMin:0.42,xMax:0.58,yMin:0.35,yMax:0.78,density:0.35},
+      {xMin:0.55,xMax:0.85,yMin:0.08,yMax:0.5,density:0.3},
+      {xMin:0.78,xMax:0.92,yMin:0.6,yMax:0.78,density:0.25},
+    ];
+    for (let x = 0; x < w; x += 8) {
+      for (let y = 0; y < h; y += 8) {
+        const px = x/w, py = y/h;
+        for (const c of continents) {
+          if (px >= c.xMin && px <= c.xMax && py >= c.yMin && py <= c.yMax) {
+            if (Math.random() < c.density) {
+              ctx.beginPath();
+              ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(255,255,255,' + (0.08 + Math.random()*0.06) + ')';
+              ctx.fill();
+            }
+            break;
+          }
+        }
+      }
+    }
+    const markers = [
+      {x:0.15,y:0.25,color:'rgba(70,255,118,0.6)',size:4},
+      {x:0.22,y:0.6,color:'rgba(139,92,246,0.6)',size:3},
+      {x:0.48,y:0.22,color:'rgba(70,255,118,0.5)',size:4},
+      {x:0.52,y:0.35,color:'rgba(139,92,246,0.5)',size:3},
+      {x:0.65,y:0.2,color:'rgba(251,146,60,0.5)',size:3},
+      {x:0.72,y:0.3,color:'rgba(96,165,250,0.5)',size:4},
+      {x:0.5,y:0.45,color:'rgba(70,255,118,0.4)',size:5},
+      {x:0.85,y:0.65,color:'rgba(139,92,246,0.4)',size:3},
+    ];
+    for (const m of markers) {
+      ctx.beginPath();
+      ctx.arc(m.x*w, m.y*h, m.size*3, 0, Math.PI*2);
+      ctx.fillStyle = m.color.replace(/[\d.]+\)$/, '0.08)');
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(m.x*w, m.y*h, m.size, 0, Math.PI*2);
+      ctx.fillStyle = m.color;
+      ctx.fill();
+    }
+  }
+  draw();
+  window.addEventListener('resize', draw);
+})();
+
+// === Demo counter animation ===
+(function() {
+  const el = document.getElementById('demo-counter');
+  if (!el) return;
+  let animated = false;
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting && !animated) {
+      animated = true;
+      const target = 10000;
+      const duration = 2500;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const val = Math.floor(eased * target);
+        el.textContent = val.toLocaleString('pt-BR');
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString('pt-BR');
+      }
+      requestAnimationFrame(tick);
+    }
+  }, { threshold: 0.5 });
+  observer.observe(el);
+})();
+
+// === FAQ tabs & accordion ===
+(function() {
+  const faqData = {
+    'Conta': [
+      {q:'Como criar uma conta na Codex Broker?', a:'Acesse nosso site, clique em \'Criar Conta\' e siga o passo a passo de cadastro. O processo é rápido e simples.'},
+      {q:'Posso ter mais de uma conta?', a:'Cada usuário pode ter apenas uma conta ativa na plataforma para garantir a segurança e integridade das operações.'},
+      {q:'Como recuperar a minha senha?', a:'Na tela de login, clique em \'Esqueci minha senha\' e siga as instruções enviadas para o seu e-mail cadastrado.'},
+      {q:'Como posso atualizar meus dados cadastrais?', a:'Acesse as configurações da sua conta e edite os campos necessários. Algumas alterações podem requerer verificação adicional.'},
+    ],
+    'Movimentações': [
+      {q:'Como realizar um depósito?', a:'Acesse a área de depósitos na sua conta e escolha o método de pagamento preferido. Os depósitos são processados rapidamente.'},
+      {q:'Qual o prazo para saques?', a:'Os saques são processados de forma instantânea na maioria dos casos.'},
+      {q:'Existe valor mínimo para depósito?', a:'Sim, o valor mínimo varia conforme o método de pagamento escolhido. Consulte a seção de depósitos para mais detalhes.'},
+    ],
+    'Plataforma': [
+      {q:'A plataforma funciona no celular?', a:'Sim, nossa plataforma é totalmente responsiva e também disponibilizamos aplicativos para iOS e Android.'},
+      {q:'Quais ativos posso operar?', a:'Oferecemos mais de 200 ativos incluindo forex, criptomoedas, ações e commodities.'},
+    ],
+    'Privacidade': [
+      {q:'Meus dados estão seguros?', a:'Sim, utilizamos criptografia de ponta e seguimos rigorosos protocolos de segurança para proteger seus dados.'},
+      {q:'A Codex Broker compartilha dados com terceiros?', a:'Não compartilhamos seus dados pessoais com terceiros sem seu consentimento expresso.'},
+    ],
+    'Suporte': [
+      {q:'Como entrar em contato com o suporte?', a:'Nosso suporte está disponível 24/7 através do chat na plataforma, e-mail ou telefone.'},
+      {q:'Qual o horário de atendimento?', a:'Nosso suporte funciona 24 horas por dia, 7 dias por semana, para atender você a qualquer momento.'},
+    ],
+  };
+
+  let activeTab = 'Conta';
+  const tabsEl = document.getElementById('faq-tabs');
+  const itemsEl = document.getElementById('faq-items');
+
+  function renderFAQ() {
+    const items = faqData[activeTab] || [];
+    itemsEl.innerHTML = items.map((item, i) => `
+      <div class="faq-item" data-index="${i}">
+        <button class="faq-item-header" onclick="toggleFAQ(${i})">
+          <span class="num">${String(i+1).padStart(2,'0')}</span>
+          <span class="question">${item.q}</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item-body"><p>${item.a}</p></div>
+      </div>
+    `).join('');
+  }
+
+  tabsEl.addEventListener('click', (e) => {
+    const tab = e.target.closest('.faq-tab');
+    if (!tab) return;
+    activeTab = tab.dataset.tab;
+    tabsEl.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderFAQ();
+  });
+
+  renderFAQ();
+})();
+
+// Toggle FAQ item
+function toggleFAQ(index) {
+  const items = document.querySelectorAll('.faq-item');
+  items.forEach((item, i) => {
+    if (i === index) item.classList.toggle('open');
+    else item.classList.remove('open');
+  });
+}
+
+// === Scroll animations ===
+(function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.anim-section').forEach(el => observer.observe(el));
+})();
+</script>
+</body>
+</html>
